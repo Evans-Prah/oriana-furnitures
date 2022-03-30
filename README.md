@@ -1,4 +1,4 @@
-# oriana-furnitures
+# oriana-furniture
 
 This is an Ecommerce app. The API is built with Miscrosoft .NET 6. The project uses stored procedures implementation - I chose this over Entity framework core due to 
 the architecure I want to use and there are a good number of other reasons I am using stored procedures.
