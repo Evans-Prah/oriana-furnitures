@@ -1,0 +1,97 @@
+@use "../../scss/abstracts/" as *;
+
+.btn {
+  border: none;
+  border-radius: 0;
+  font-family: $font-display;
+  font-size: 1rem;
+  text-transform: uppercase;
+  padding: 1.8rem 3rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 1rem 2rem rgba(#000, 0.2);
+
+    &::after {
+      transform: scaleX(1.4) scaleY(1.6);
+      opacity: 0;
+    }
+  }
+
+  &:active,
+  &:focus {
+    outline: none;
+    transform: translateY(-1px);
+    box-shadow: 0 0.5rem 1rem rgba(#000, 0.2);
+  }
+}
+
+.product-card {
+  background-color: $color-primary-light;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.5rem;
+
+  &__img {
+    align-self: center;
+    padding-top: 2rem;
+    transition: all 0.2s;
+
+    &:hover {
+      transform: translateY(5px);
+      box-shadow: 0 1rem 2rem rgba(#000, 0.2);
+
+      &::after {
+        transform: scaleX(1.4) scaleY(1.6);
+        opacity: 0;
+      }
+    }
+  }
+
+  &__details {
+    padding: 3rem 1rem;
+
+    &-name {
+
+      font-family: $font-display;
+      font-size: 1.3rem;
+      background-color: $color-secondary;
+      color: #fff;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    &-price,
+    &-brand,
+    &-type {
+      color: $color-grey-dark-1;
+      font-size: 1.4rem;
+    }
+  }
+
+  &__btns {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 1rem;
+
+    &-add-btn {
+      background-color: $color-primary;
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+
+    &-view-btn {
+      font-weight: 400;
+      margin-bottom: 1rem;
+      background-color: $color-grey-light-3;
+      color: #000;
+
+      &:hover {
+        background-color: $color-grey-dark-1;
+        color: #fff;
+      }
+    }
+  }
+}

@@ -1,0 +1,157 @@
+@use "../../scss/abstracts/" as *;
+
+a {
+  text-decoration: none;
+}
+li {
+  list-style: none;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem;
+  background-color: $color-primary;
+  color: #fff;
+}
+
+.nav-links a {
+  color: #000000;
+}
+
+/* LOGO */
+.logo {
+  font-family: $font-display;
+  font-size: 2rem;
+  font-style: italic;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: $color-primary-light;
+}
+
+.menu {
+  display: flex;
+  gap: 1rem;
+  font-size: 1.8rem;
+}
+
+.menu li:hover {
+  background-color: $color-primary-light;
+  border-radius: 5px;
+  transition: 0.3s ease;
+}
+
+.menu li {
+  padding: 5px 14px;
+}
+
+.sub-menu {
+  position: relative;
+}
+
+.dropdown {
+  background-color: $color-grey-light-1;
+  padding: 1em 0;
+  position: absolute;
+  display: none;
+  border-radius: 8px;
+  top: 35px;
+}
+
+.dropdown li + li {
+  margin-top: 10px;
+}
+
+.dropdown li {
+  padding: 0.5em 1em;
+  width: 8em;
+  text-align: center;
+}
+
+.dropdown li:hover {
+  background-color: $color-primary-light;
+}
+
+.sub-menu:hover .dropdown {
+  display: block;
+}
+
+.shopping-cart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.shopping-cart-icon {
+  height: 2.25rem;
+  width: 2.25rem;
+  align-items: center;
+  fill: $color-grey-dark-1;
+}
+
+.cart-badge {
+  font-size: 1.5rem;
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 50%;
+  background-color: #ff69b4;
+  color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  top: 1.2rem;
+  right: -0.2rem;
+}
+
+/*RESPONSIVE NAVBAR MENU STARTS*/
+/* CHECKBOX HACK */
+
+input[type="checkbox"] {
+  display: none;
+}
+
+/*HAMBURGER MENU*/
+.hamburger {
+  display: none;
+  font-size: 2.2rem;
+  user-select: none;
+}
+
+/* APPLYING MEDIA QUERIES */
+@include respond(tab-port) {
+  .menu {
+    display: none;
+    position: absolute;
+    background-color: $color-primary;
+    right: 0;
+    left: 0;
+    text-align: center;
+    padding: 1.6rem 0;
+  }
+  .menu li:hover {
+    display: inline-block;
+    background-color: $color-primary-light;
+    transition: 0.3s ease;
+  }
+  .menu li + li {
+    margin-top: 1.2rem;
+  }
+  input[type="checkbox"]:checked ~ .menu {
+    display: block;
+  }
+  .hamburger {
+    display: block;
+  }
+  .dropdown {
+    left: 50%;
+    top: 3rem;
+    transform: translateX(25%);
+  }
+
+  .dropdown li:hover {
+    background-color: $color-primary-light;
+  }
+
+}

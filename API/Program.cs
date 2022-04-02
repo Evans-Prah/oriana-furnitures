@@ -18,13 +18,15 @@ builder.Services.AddSingleton<IStoredProcedureExecutor, NpgsqlStoredProcedureExe
 builder.Services.AddSingleton<IDbHelper, DbHelper>();
 builder.Services.AddSingleton<IProductsHelper, ProductsHelper>();
 
+builder.Services.AddCors();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(x =>
 {
-    x.SwaggerDoc("v1", new OpenApiInfo { Title = "Oriana Furnitures API", Version = "v1" });
+    x.SwaggerDoc("v1", new OpenApiInfo { Title = "Oriana Furniture API", Version = "v1" });
 });
 
 var app = builder.Build();
@@ -33,8 +35,17 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(x => x.SwaggerEndpoint("/swagger/v1/swagger.json", "Oriana Furnitures API v1"));
+    app.UseSwaggerUI(x => x.SwaggerEndpoint("/swagger/v1/swagger.json", "Oriana Furniture API v1"));
 }
+
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseCors(opt =>
+{
+    opt.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
+});
 
 app.UseAuthorization();
 
