@@ -32,7 +32,7 @@ namespace API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e);
-                return new ApiResponse { Success = false, ResponseMessage = "An system error occured while processing request, try again later." };
+                return new ApiResponse { Success = false, ResponseMessage = "A system error occured while processing request, try again later." };
             }
         }
 
@@ -50,7 +50,43 @@ namespace API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e);
-                return new ApiResponse { Success = false, ResponseMessage = "An system error occured while processing request, try again later." };
+                return new ApiResponse { Success = false, ResponseMessage = "A system error occured while processing request, try again later." };
+            }
+        }
+        
+        [HttpGet("[action]/{productUuid}")]
+        public async Task<ApiResponse> GetProductReviews(string productUuid)
+        {
+            try
+            {
+                var productReviews = await _productsHelper.GetProductReviews(productUuid);
+
+                if (productReviews == null || !productReviews.Any()) return new ApiResponse { Success = false, ResponseMessage = "There are no reviews for this product" };
+
+                return new ApiResponse { Success = true, ResponseMessage = "Product reviews fetched sucessfully", Data = productReviews };
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e);
+                return new ApiResponse { Success = false, ResponseMessage = "A system error occured while processing request, try again later." };
+            }
+        }
+
+        [HttpGet("[action]/{productUuid}")]
+        public async Task<ApiResponse> GetTotalProductReviews(string productUuid)
+        {
+            try
+            {
+                var data = await _productsHelper.GetTotalProductReviews(productUuid);
+
+                if (data == null) return new ApiResponse { Success = false, ResponseMessage = "No reviews for this product" };
+
+                return new ApiResponse { Success = true, ResponseMessage = "Total reviews and average rating fetched sucessfully", Data = data };
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e);
+                return new ApiResponse { Success = false, ResponseMessage = "A system error occured while processing request, try again later." };
             }
         }
     }

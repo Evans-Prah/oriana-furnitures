@@ -1,0 +1,29 @@
+@use "../../scss/abstracts/" as *;
+
+.product__review {
+  padding: 1rem 0;
+
+  &-name {
+    color:  #282C35;
+    font-style: italic;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  &-date {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: $color-primary;
+  }
+
+  &-rating {
+    font-size: 2rem;
+    color: #d2b61bbd;
+  }
+
+  &-review {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+  }
+
+}

@@ -1,33 +1,62 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import agent from "../../constants/agent";
 import { Product } from "../../models/Product";
-
+import { Review, Rating } from "../../models/Review";
+import LoadingComponent from "../Layout/LoadingComponent";
+import NotFound from "../Layout/NotFound";
 import "./ProductDetails.scss";
+import ProductReview from "./ProductReview";
 
 const ProductDetails = () => {
-  const { productUuid } = useParams();
+  const { productUuid } = useParams<{ productUuid: string }>();
   const [product, setProduct] = useState<Product | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [totalRating, setTotalRating] = useState<Rating>();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:5041/api/products/GetProduct/${productUuid}`)
+    agent.Catalog.getProduct(productUuid!)
       .then((res) => {
-        if (res.data.success) {
+        if (res) {
           setLoading(false);
-          setProduct(res.data.data);
+          setProduct(res);
         } else {
           setLoading(false);
-          console.log(res.data.responseMessage);
         }
       })
       .catch((error) => console.log(error));
   }, [productUuid]);
 
-  if (loading) return <h3>Loading...</h3>;
+  useEffect(() => {
+    agent.Reviews.getProductReviews(productUuid!)
+      .then((res) => {
+        if (res) {
+          setLoading(false);
+          setReviews(res);
+        } else {
+          console.log(res);
+        }
+      })
+      .catch((error) => console.log(error));
+  }, [productUuid]);
 
-  if (!product) return <h3>Product not found</h3>;
+  useEffect(() => {
+    agent.Reviews.getTotalProductReviews(productUuid!)
+      .then((res) => {
+        if (res) {
+          setLoading(false);
+          setTotalRating(res);
+        } else {
+          console.log(res);
+        }
+      })
+      .catch((error) => console.log(error));
+  }, [productUuid]);
+
+  if (loading) return <LoadingComponent />;
+
+  if (!product) return <NotFound />;
 
   return (
     <div className="container">
@@ -52,7 +81,7 @@ const ProductDetails = () => {
         </p>
         <hr />
         <h3 className="container__product-details-type">
-          Type: {product.type}
+          Type: {product.category}
         </h3>
         <h3 className="container__product-details-brand">
           Brand: {product.brand}
@@ -61,6 +90,27 @@ const ProductDetails = () => {
           Quantity In Stock: {product.quantityInStock}
         </h3>
         <hr />
+      </div>
+      <div className="container__product-reviews">
+        <h2 className="container__product-reviews-total">
+          Customer Reviews ({totalRating?.total})
+          {new Array(totalRating?.averageRating).fill(null).map((_, index) => (
+            <span
+              className="container__product-reviews-averageRating"
+              key={index}
+            >
+              &#9733;
+            </span>
+          ))}
+        </h2>
+        <hr />
+        {reviews.length > 0 ? (
+          reviews.map((review) => (
+            <ProductReview key={review.reviewUuid} review={review} />
+          ))
+        ) : (
+          <h2>There are no reviews for this product</h2>
+        )}
       </div>
     </div>
   );

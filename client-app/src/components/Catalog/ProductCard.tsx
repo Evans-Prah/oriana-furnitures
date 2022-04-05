@@ -24,7 +24,7 @@ const ProductCard = ({ product }: Props) => {
           <h4 className="product-card__details-brand">
             Brand: {product.brand}
           </h4>
-          <h4 className="product-card__details-type">Type: {product.type}</h4>
+          <h4 className="product-card__details-type">Type: {product.category}</h4>
         </div>
         <div className="product-card__btns">
           <button className="btn product-card__btns-add-btn">

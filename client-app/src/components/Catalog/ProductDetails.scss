@@ -5,18 +5,19 @@ hr {
   border-top: 1px solid $color-grey-dark-3;
 }
 
-
 .container {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
-   gap: 10rem;
+  gap: 10rem;
   padding: 5rem 7rem;
 
   @include respond(tab-land) {
     display: flex;
-    gap: 10rem;
+    flex-direction: column;
+    align-items: center;
     justify-content: space-between;
+    gap: 10rem;
   }
 
   @include respond(phone) {
@@ -31,12 +32,11 @@ hr {
     background-color: transparent;
     border-radius: 5px;
     justify-self: center;
+    align-self: center;
     padding: 1rem;
     transition: all 0.2s;
 
-    @include respond(phone) {
-      background-color: $color-grey-light-2;
-    }
+    
 
     &:hover {
       transform: translateY(-5px);
@@ -50,7 +50,7 @@ hr {
   }
 
   &__product-details {
-    justify-self: self-start;
+    align-self: self-start;
     padding: 1rem;
 
     &-name {
@@ -78,6 +78,25 @@ hr {
     &-quantity {
       margin: 2rem 0;
       font-size: 1.5rem;
+    }
+  }
+
+  &__product-reviews {
+    align-self: self-start;
+    padding: 1rem;
+
+    &-total {
+      font-family: $font-display;
+      font-size: 1.7rem;
+    }
+
+    &-averageRating {
+      font-size: 2rem;
+      color: #d2b61bbd;
+
+      &:first-child {
+         margin-left: 1rem;
+      }
     }
   }
 }

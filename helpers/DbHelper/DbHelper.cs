@@ -33,6 +33,31 @@ namespace helpers.DbHelper
 
             return null;
         }
+        
+        public async Task<List<ReviewInfo>> GetProductReviews(string productUuid)
+        {
+            var parameters = new List<StoreProcedureParameter>
+            {
+                new StoreProcedureParameter {Name = "reqProductUuid", Type = NpgsqlDbType.Varchar, Value = productUuid}
+            };
+
+           return await _storedProcedureExecutor.ExecuteStoredProcedure<ReviewInfo>(_connectionStrings.Default, "\"GetProductReviews\"", parameters);
+
+        }
+
+        public async Task<TotalRatingInfo?> GetTotalProductReviews(string productUuid)
+        {
+            var parameters = new List<StoreProcedureParameter>
+            {
+                new StoreProcedureParameter {Name = "reqProductUuid", Type = NpgsqlDbType.Varchar, Value = productUuid}
+            };
+
+            var response = await _storedProcedureExecutor.ExecuteStoredProcedure<TotalRatingInfo>(_connectionStrings.Default, "\"GetTotalProductReviews\"", parameters);
+
+            if (response.Count > 0) return response[0];
+
+            return new TotalRatingInfo { Message = "Product has no reviews"};
+        }
 
         #endregion
 
