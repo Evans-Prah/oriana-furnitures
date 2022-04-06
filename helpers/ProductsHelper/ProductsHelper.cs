@@ -19,5 +19,7 @@ namespace helpers.ProductsHelper
         public async Task<List<ReviewInfo>> GetProductReviews(string productUuid) => await _dbHelper.GetProductReviews(productUuid);
 
         public async Task<TotalRatingInfo?> GetTotalProductReviews(string productUuid) => await _dbHelper.GetTotalProductReviews(productUuid);
+
+
     }
 }

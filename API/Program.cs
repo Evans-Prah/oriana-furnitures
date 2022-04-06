@@ -1,5 +1,6 @@
 using DataAccess.Executors;
 using DataAccess.Models;
+using helpers.BasketHelper;
 using helpers.DbHelper;
 using helpers.FileLogger;
 using helpers.ProductsHelper;
@@ -17,6 +18,7 @@ builder.Services.AddScoped<IFileLogger, FileLogger>();
 builder.Services.AddSingleton<IStoredProcedureExecutor, NpgsqlStoredProcedureExecutor>();
 builder.Services.AddSingleton<IDbHelper, DbHelper>();
 builder.Services.AddSingleton<IProductsHelper, ProductsHelper>();
+builder.Services.AddSingleton<IBasketHelper, BasketHelper>();
 
 builder.Services.AddCors();
 
@@ -44,7 +46,7 @@ app.UseRouting();
 
 app.UseCors(opt =>
 {
-    opt.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
+    opt.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:3000");
 });
 
 app.UseAuthorization();

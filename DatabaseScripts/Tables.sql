@@ -46,3 +46,23 @@ CREATE TABLE orf."Reviews"
     "Review"     CHARACTER VARYING        NOT NULL,
     "DateAdded"  TIMESTAMP WITHOUT TIME ZONE DEFAULT (NOW() AT TIME ZONE 'UTC')
 );
+
+
+DROP TABLE IF EXISTS orf."Baskets";
+CREATE TABLE orf."Baskets"
+(
+    "BasketId"   BIGSERIAL                NOT NULL PRIMARY KEY,
+    "BuyerId"    CHARACTER VARYING UNIQUE NOT NULL,
+    "DateAdded"  TIMESTAMP WITHOUT TIME ZONE DEFAULT (NOW() AT TIME ZONE 'UTC')
+);
+
+DROP TABLE IF EXISTS orf."BasketItems";
+CREATE TABLE orf."BasketItems"
+(
+    "BasketItemId"   BIGSERIAL                NOT NULL PRIMARY KEY,
+    "BasketId"       INTEGER                  NOT NULL,
+    "ProductId"      INTEGER                  NOT NULL,
+    "Quantity"       INTEGER,
+    "DateAdded"      TIMESTAMP WITHOUT TIME ZONE DEFAULT (NOW() AT TIME ZONE 'UTC'),
+    "DateModified"   TIMESTAMP WITHOUT TIME ZONE
+);

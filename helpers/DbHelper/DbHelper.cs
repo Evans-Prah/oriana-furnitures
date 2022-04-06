@@ -1,5 +1,6 @@
 ﻿using DataAccess.Executors;
 using DataAccess.Models;
+using models.Basket;
 using models.Product;
 using NpgsqlTypes;
 
@@ -42,7 +43,6 @@ namespace helpers.DbHelper
             };
 
            return await _storedProcedureExecutor.ExecuteStoredProcedure<ReviewInfo>(_connectionStrings.Default, "\"GetProductReviews\"", parameters);
-
         }
 
         public async Task<TotalRatingInfo?> GetTotalProductReviews(string productUuid)
@@ -58,6 +58,54 @@ namespace helpers.DbHelper
 
             return new TotalRatingInfo { Message = "Product has no reviews"};
         }
+
+        #endregion
+
+
+        #region Basket
+
+        public async Task<List<BasketItemsInfo?>> GetBasket(string? buyerId)
+        {
+            var parameters = new List<StoreProcedureParameter>
+            {
+                new StoreProcedureParameter {Name = "reqBuyerId", Type = NpgsqlDbType.Varchar, Value = buyerId}
+            };
+
+            return await _storedProcedureExecutor.ExecuteStoredProcedure<BasketItemsInfo?>(_connectionStrings.Default, "\"GetBasket\"", parameters);
+        }
+
+        public async Task<BasketDbResponse> AddItemToBasket(string productUuid, int quantity, string buyerId)
+        {
+            var parameters = new List<StoreProcedureParameter>
+            {
+                new StoreProcedureParameter { Name = "reqProductUuid", Type = NpgsqlDbType.Varchar, Value = productUuid},
+                new StoreProcedureParameter { Name = "reqQuantity", Type = NpgsqlDbType.Integer, Value = quantity},
+                new StoreProcedureParameter { Name = "reqBuyerId", Type = NpgsqlDbType.Varchar, Value = buyerId},
+            };
+
+            var response = await _storedProcedureExecutor.ExecuteStoredProcedure<BasketDbResponse>(_connectionStrings.Default, "\"AddItemToBasket\"", parameters);
+
+            if (response.Count > 0) return response[0];
+
+            return new BasketDbResponse { Message = "an error occurred" };
+        }
+
+        public async Task<BasketDbResponse> RemoveItemFromBasket(string productUuid, int quantity, string buyerId)
+        {
+            var parameters = new List<StoreProcedureParameter>
+            {
+                new StoreProcedureParameter { Name = "reqProductUuid", Type = NpgsqlDbType.Varchar, Value = productUuid},
+                new StoreProcedureParameter { Name = "reqQuantity", Type = NpgsqlDbType.Integer, Value = quantity},
+                new StoreProcedureParameter { Name = "reqBuyerId", Type = NpgsqlDbType.Varchar, Value = buyerId},
+            };
+
+            var response = await _storedProcedureExecutor.ExecuteStoredProcedure<BasketDbResponse>(_connectionStrings.Default, "\"RemoveItemFromBasket\"", parameters);
+
+            if (response.Count > 0) return response[0];
+
+            return new BasketDbResponse { Message = "an error occurred" };
+        }
+
 
         #endregion
 
