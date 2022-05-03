@@ -1,9 +1,8 @@
 ﻿namespace models.Basket
 {
-    public class BasketItemsInfo
+    public class BasketItems
     {
-        public int BasketItemId { get; set; }
-        public string BuyerId { get; set; }
+        public string ProductUuid { get; set; }
         public string Product { get; set; }
         public string Brand { get; set; }
         public string Category { get; set; }

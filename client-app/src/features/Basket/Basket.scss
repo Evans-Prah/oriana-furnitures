@@ -1,0 +1,156 @@
+@use "../../scss/abstracts/" as *;
+
+.empty-basket-message {
+  font-size: 4rem;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 5rem;
+}
+
+.go-to-catalog {
+  display: flex;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 2rem;
+  color: $color-primary;
+  text-transform: uppercase;
+}
+
+.basket-container {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  grid-gap: 2rem;
+  padding: 2rem;
+
+  @include respond(tab-land) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @include respond(phone) {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .trash-icon {
+    width: 1.6rem;
+    height: 1.6rem;
+    fill: #e02a2a;
+  }
+
+  .quantity {
+    align-items: center;
+    margin: 1rem;
+  }
+
+  .minus-icon {
+    width: 1.4rem;
+    height: 1.4rem;
+    fill: $color-primary;
+  }
+
+  .plus-icon {
+    width: 1.4rem;
+    height: 1.4rem;
+    fill: $color-grey-dark-4;
+  }
+
+  &__items {
+    // display: flex;
+    // justify-content: center;
+    // align-items: center;
+    overflow-x: auto;
+
+    table {
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      font-family: $font-display;
+    }
+
+    // thead th:nth-child(1) {
+    //   width: 35%;
+    // }
+
+    // thead th:nth-child(2) {
+    //   width: 20%;
+    // }
+
+    // thead th:nth-child(3) {
+    //   width: 15%;
+    // }
+
+    // thead th:nth-child(4) {
+    //   width: 15%;
+    // }
+
+    // thead th:nth-child(5) {
+    //   width: 15%;
+    // }
+    .product-thumbnail {
+      display: flex;
+      gap: 2rem;
+
+      @include respond(tab-land) {
+        flex-direction: column;
+        align-items: flex-start;
+        overflow: hidden;
+      }
+    }
+
+    td,
+    th {
+      font-size: 1.4rem;
+      padding: 1rem;
+      letter-spacing: 1px;
+      text-align: center;
+      overflow-x: auto;
+    }
+
+    @include respond(tab-port) {
+      table {
+        table-layout: fixed;
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      thead th {
+        font-family: $font-display;
+      }
+
+      th {
+        font-size: 1.2rem;
+        padding: 1rem;
+      }
+      td {
+        font-size: 1.4rem;
+        padding: 1rem;
+      }
+    }
+
+    @include respond(phone) {
+      table {
+        border-collapse: collapse;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      thead th {
+        font-family: $font-display;
+      }
+
+      th {
+        font-size: 1.5rem;
+      }
+      td {
+        font-size: 1.2rem;
+        padding: 1rem 1.2rem;
+      }
+    }
+  }
+}

@@ -1,7 +1,14 @@
+import { Link } from "react-router-dom";
 import { NavLink } from "react-router-dom";
+import { useStoreContext } from "../../context/StoreContext";
 import "./Navbar.scss";
 
 export default function Navbar() {
+  const {basket} = useStoreContext();
+  const itemCount= basket?.data?.items?.reduce((sum, item) => sum + item.quantity, 0);
+  console.log(itemCount);
+
+
   let activeStyle = {
     color: "#fff",
   };
@@ -58,12 +65,12 @@ export default function Navbar() {
             <a href="/#">Register</a>
           </li>
           <li>
-            <a className="shopping-cart" href="/#">
+            <Link to="/basket" className="shopping-cart">
               <svg className="shopping-cart-icon">
                 <use xlinkHref="./images/sprite.svg#icon-shopping-cart"></use>
               </svg>
-              <span className="cart-badge">100</span>
-            </a>
+              <span className="cart-badge">{itemCount}</span>
+            </Link>
           </li>
         </div>
       </ul>

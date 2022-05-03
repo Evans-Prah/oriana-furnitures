@@ -1,16 +1,38 @@
+import { useEffect, useState } from "react";
 import { Route } from "react-router-dom";
 import { Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import agent from "./api/agent";
 import ProductDetails from "./components/Catalog/ProductDetails";
+import LoadingComponent from "./components/Layout/LoadingComponent";
 import Navbar from "./components/Layout/Navbar";
 import NotFound from "./components/Layout/NotFound";
+import { useStoreContext } from "./context/StoreContext";
 import About from "./features/About/About";
+import Basket from "./features/Basket/Basket";
 import Catalog from "./features/Catalog/Catalog";
 import Home from "./features/Home/Home";
 import "./scss/App.scss";
+import { getCookie } from "./util/util";
 
 function App() {
+  const { setBasket } = useStoreContext();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const buyerId = getCookie("buyerId");
+    if (buyerId) {
+      agent.Basket.getBasket()
+        .then((basket) => setBasket(basket))
+        .catch((error) => console.log(error))
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, [setBasket]);
+
+  if(loading) return <LoadingComponent message='Initializing App' />
 
   return (
     <>
@@ -31,6 +53,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/catalog" element={<Catalog />} />
         <Route path="/catalog/:productUuid" element={<ProductDetails />} />
+        <Route path="/basket" element={<Basket />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

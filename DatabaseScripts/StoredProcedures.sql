@@ -129,26 +129,48 @@ END
 $$;
 
 
+
 DROP FUNCTION IF EXISTS orf."GetBasket"(CHARACTER VARYING);
 CREATE FUNCTION orf."GetBasket"("reqBuyerId" CHARACTER VARYING)
     RETURNS TABLE
             (
-                "BasketItemId" INTEGER,
-                "BuyerId"      CHARACTER VARYING,
-                "Product"      CHARACTER VARYING,
-                "Brand"        CHARACTER VARYING,
-                "Category"     CHARACTER VARYING,
-                "Price"        BIGINT,
-                "Quantity"     INTEGER,
-                "PictureUrl"   CHARACTER VARYING
+                "BasketId" INTEGER,
+                "BuyerId"  CHARACTER VARYING,
+                "Items"    JSONB
+
             )
     LANGUAGE plpgsql
 AS
 $$
 BEGIN
 
-    RETURN QUERY SELECT bi."BasketItemId"::INTEGER,
+    RETURN QUERY SELECT ba."BasketId"::INTEGER,
                         ba."BuyerId",
+                        (SELECT jsonb_agg(v) FROM orf."GetBasketItems"(ba."BasketId"::INTEGER) v)::JSONB
+                 FROM orf."Baskets" ba
+                 WHERE ba."BuyerId" = "reqBuyerId";
+END
+$$;
+
+
+DROP FUNCTION IF EXISTS orf."GetBasketItems"(INTEGER);
+CREATE FUNCTION orf."GetBasketItems"("reqBasketId" INTEGER)
+    RETURNS TABLE
+            (
+                "ProductUuid" CHARACTER VARYING,
+                "Product"     CHARACTER VARYING,
+                "Brand"       CHARACTER VARYING,
+                "Category"    CHARACTER VARYING,
+                "Price"       BIGINT,
+                "Quantity"    INTEGER,
+                "PictureUrl"  CHARACTER VARYING
+            )
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+
+    RETURN QUERY SELECT pr."ProductUuid",
                         pr."Name",
                         br."Brand",
                         ca."Category",
@@ -156,11 +178,10 @@ BEGIN
                         bi."Quantity",
                         pr."PictureUrl"
                  FROM orf."BasketItems" bi
-                          LEFT JOIN orf."Baskets" ba ON bi."BasketId" = ba."BasketId"
                           LEFT JOIN orf."Products" pr ON bi."ProductId" = pr."ProductId"
                           LEFT JOIN orf."Brands" br ON pr."BrandId" = br."BrandId"
                           LEFT JOIN orf."Categories" ca ON pr."CategoryId" = ca."CategoryId"
-                 WHERE ba."BuyerId" = "reqBuyerId";
+                 WHERE bi."BasketId" = "reqBasketId";
 END
 $$;
 
@@ -172,16 +193,17 @@ CREATE FUNCTION orf."AddItemToBasket"("reqProductUuid" CHARACTER VARYING,
     RETURNS TABLE
             (
                 "Message"      CHARACTER VARYING,
-                "ResponseCode" INTEGER
+                "ResponseCode" INTEGER,
+                "Items"        JSONB
             )
     LANGUAGE plpgsql
 AS
 $$
 DECLARE
-    _product_id INTEGER;
-    _basket_id  INTEGER;
-    _item_id    INTEGER;
-    _basket     RECORD;
+    _product_id     INTEGER;
+    _basket_id      INTEGER;
+    _item_id        INTEGER;
+    _basket         RECORD;
 BEGIN
 
     SELECT * FROM orf."GetBasket"("reqBuyerId") INTO _basket;
@@ -192,13 +214,19 @@ BEGIN
         RETURNING "BasketId"::INTEGER INTO _basket_id;
     END IF;
 
-    SELECT p."ProductId" INTO _product_id FROM orf."Products" p WHERE p."ProductUuid" = "reqProductUuid" LIMIT 1;
+    SELECT p."ProductId"
+    INTO _product_id
+    FROM orf."Products" p
+    WHERE p."ProductUuid" = "reqProductUuid"
+    LIMIT 1;
 
     IF _product_id IS NULL THEN
         RETURN QUERY SELECT 'Product does not exist, check and try again.'::CHARACTER VARYING,
-                            100; -- Code 100: Invalid product
+                            100, -- Code 100: Invalid product
+                            NULL::JSONB;
         RETURN;
     END IF;
+
 
     SELECT b."BasketId"::INTEGER INTO _basket_id FROM orf."Baskets" b WHERE b."BuyerId" = "reqBuyerId" LIMIT 1;
 
@@ -214,20 +242,24 @@ BEGIN
     LIMIT 1;
 
     IF _item_id IS NOT NULL THEN
+
         UPDATE orf."BasketItems"
-        SET "Quantity"     = "Quantity" + "reqQuantity",
+        SET "Quantity"     = orf."BasketItems"."Quantity" + "reqQuantity",
             "DateModified" = NOW() AT TIME ZONE 'UTC'
         WHERE "BasketItemId" = _item_id;
 
         RETURN QUERY SELECT 'Item quantity has been increased in basket successfully'::CHARACTER VARYING,
-                            105; -- Code 105: cart item updated
+                            105, -- Code 105: cart item updated
+                            (SELECT jsonb_agg(v) FROM orf."GetBasketItems"(_basket_id) v)::JSONB;
         RETURN;
     END IF;
 
     INSERT INTO orf."BasketItems"("BasketId", "ProductId", "Quantity")
     VALUES (_basket_id, _product_id, "reqQuantity");
 
-    RETURN QUERY SELECT 'Item added to cart successfully'::CHARACTER VARYING, 110; -- Code 100: new item added
+    RETURN QUERY SELECT 'Item added to cart successfully'::CHARACTER VARYING,
+                        110, -- Code 100: new item added
+                        (SELECT jsonb_agg(v) FROM orf."GetBasketItems"(_basket_id) v)::JSONB;
 END
 $$;
 
@@ -298,6 +330,5 @@ BEGIN
 
 END
 $$;
-
 
 

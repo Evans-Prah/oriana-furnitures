@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import agent from "../../constants/agent";
+import agent from "../../api/agent";
 import { Product } from "../../models/Product";
 import { Review, Rating } from "../../models/Review";
 import LoadingComponent from "../Layout/LoadingComponent";
@@ -67,7 +67,7 @@ const ProductDetails = () => {
         <h2 className="container__product-details-name">{product.name}</h2>
 
         <h4 className="container__product-details-price">
-          GH {product.price.toFixed(2)}
+          GH₵ {product.price.toFixed(2)}
         </h4>
         <hr />
         <p className="container__product-details-description">

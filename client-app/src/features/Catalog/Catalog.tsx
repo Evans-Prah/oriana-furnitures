@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Products from "../../components/Catalog/Products";
 import LoadingComponent from "../../components/Layout/LoadingComponent";
-import agent from "../../constants/agent";
+import agent from "../../api/agent";
 import { Product } from "../../models/Product";
 
 const Catalog = () => {

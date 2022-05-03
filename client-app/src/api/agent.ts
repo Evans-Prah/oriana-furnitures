@@ -1,12 +1,21 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import { ApiResponse } from "../models/ApiResponse";
 import { Product } from "../models/Product";
 import { Rating, Review } from "../models/Review";
 
 const baseUrl = "http://localhost:5041/api/";
+axios.defaults.baseURL = "http://localhost:5041/api/";
+axios.defaults.withCredentials = true;
+
+const responseBody = (response: AxiosResponse) => response?.data;
 
 const sleep = () => new Promise(resolve => setTimeout(resolve, 500));
+
+const requests = {
+  get:(url: string) => axios.get(url).then(responseBody),
+  post:(url: string, body: {}) => axios.post(url, body).then(responseBody)
+}
 
 function getAxios() {
   const instance = axios.create({ baseURL: baseUrl });
@@ -89,7 +98,7 @@ const Reviews = {
               resolve(data as Rating);
               return true;
             }
-            toast.error(response.data.responseMessage);
+            //toast.error(response.data.responseMessage);
           })
           .catch(function (error) {
             toast.error(error);
@@ -101,9 +110,24 @@ const Reviews = {
   },
 };
 
+const Basket = {
+  getBasket: () => requests.get("basket/GetBasket"),
+  addItem: (productUuid: string, quantity = 1) =>
+    requests.post(
+      `basket/AddItemToBasket?productUuid=${productUuid}&quantity=${quantity}`,
+      {}
+    ),
+  removeItem: (productUuid: string, quantity: number) =>
+    requests.post(
+      `basket/RemoveItemFromBasket?productUuid=${productUuid}&quantity=${quantity}`,
+      {}
+    ),
+};
+
 const agent = {
   Catalog,
   Reviews,
+  Basket
 };
 
 export default agent;

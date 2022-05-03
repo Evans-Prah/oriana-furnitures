@@ -64,17 +64,24 @@ namespace helpers.DbHelper
 
         #region Basket
 
-        public async Task<List<BasketItemsInfo?>> GetBasket(string? buyerId)
+        public async Task<BasketInfo> GetBasket(string? buyerId)
         {
             var parameters = new List<StoreProcedureParameter>
-            {
-                new StoreProcedureParameter {Name = "reqBuyerId", Type = NpgsqlDbType.Varchar, Value = buyerId}
-            };
+             {
+                 new StoreProcedureParameter {Name = "reqBuyerId", Type = NpgsqlDbType.Varchar, Value = buyerId}
+             };
 
-            return await _storedProcedureExecutor.ExecuteStoredProcedure<BasketItemsInfo?>(_connectionStrings.Default, "\"GetBasket\"", parameters);
+          var response = await _storedProcedureExecutor.ExecuteStoredProcedure<BasketInfo>(_connectionStrings.Default, "\"GetBasket\"", parameters);
+           
+            
+            if (response.Count > 0) return response[0];
+
+            return new BasketInfo { };
         }
 
-        public async Task<BasketDbResponse> AddItemToBasket(string productUuid, int quantity, string buyerId)
+
+
+        public async Task<AddBasketDbResponse> AddItemToBasket(string productUuid, int quantity, string buyerId)
         {
             var parameters = new List<StoreProcedureParameter>
             {
@@ -83,11 +90,11 @@ namespace helpers.DbHelper
                 new StoreProcedureParameter { Name = "reqBuyerId", Type = NpgsqlDbType.Varchar, Value = buyerId},
             };
 
-            var response = await _storedProcedureExecutor.ExecuteStoredProcedure<BasketDbResponse>(_connectionStrings.Default, "\"AddItemToBasket\"", parameters);
+            var response = await _storedProcedureExecutor.ExecuteStoredProcedure<AddBasketDbResponse>(_connectionStrings.Default, "\"AddItemToBasket\"", parameters);
 
             if (response.Count > 0) return response[0];
 
-            return new BasketDbResponse { Message = "an error occurred" };
+            return new AddBasketDbResponse { Message = "an error occurred" };
         }
 
         public async Task<BasketDbResponse> RemoveItemFromBasket(string productUuid, int quantity, string buyerId)

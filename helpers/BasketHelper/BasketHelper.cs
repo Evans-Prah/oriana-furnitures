@@ -15,7 +15,7 @@ namespace helpers.BasketHelper
             _dbHelper = dbHelper;
         }
 
-        public async Task<List<BasketItemsInfo?>> GetBasket(string buyerId) => await _dbHelper.GetBasket(buyerId);
+        public async Task<BasketInfo> GetBasket(string buyerId) => await _dbHelper.GetBasket(buyerId);
 
         public async Task<HelpersResponse> AddItemToBasket(string productUuid, int quantity, string buyerId, StringBuilder logs)
         {
@@ -29,10 +29,33 @@ namespace helpers.BasketHelper
             var dbResponse = await _dbHelper.AddItemToBasket(productUuid, quantity, buyerId);
             logs.AppendLine($"DB Response: {JsonConvert.SerializeObject(dbResponse)}");
 
-            if (!string.IsNullOrWhiteSpace(dbResponse.Message) && dbResponse.ResponseCode == 100) return new HelpersResponse { Successful = false, ResponseMessage = dbResponse.Message };
-            if (!string.IsNullOrWhiteSpace(dbResponse.Message) && dbResponse.ResponseCode == 105) return new HelpersResponse { Successful = true, ResponseMessage = dbResponse.Message };
+            if (!string.IsNullOrWhiteSpace(dbResponse.Message) && dbResponse.ResponseCode == 100) return new HelpersResponse
+            {
+                Successful = false,
+                ResponseMessage = dbResponse.Message,
+                Data = new AddBasketDbResponse { ResponseCode = dbResponse.ResponseCode }
+            };
+            if (!string.IsNullOrWhiteSpace(dbResponse.Message) && dbResponse.ResponseCode == 105) return new HelpersResponse
+            {
+                Successful = true,
+                ResponseMessage = dbResponse.Message,
+                Data = new AddBasketDbResponse
+                {
+                    ResponseCode = dbResponse.ResponseCode,
+                    Items = dbResponse.Items,
+                }
+            };
 
-            return new HelpersResponse { Successful = true, ResponseMessage = dbResponse.Message };
+            return new HelpersResponse
+            {
+                Successful = true,
+                ResponseMessage = "Item added to cart successfully",
+                Data = new AddBasketDbResponse
+                {
+                    ResponseCode = dbResponse.ResponseCode,
+                    Items = dbResponse.Items,
+                }
+            };
         }
 
         public async Task<HelpersResponse> RemoveItemFromBasket(string productUuid, int quantity, string buyerId, StringBuilder logs)
