@@ -2,6 +2,7 @@ DROP FUNCTION IF EXISTS orf."GetProducts"();
 CREATE FUNCTION orf."GetProducts"()
     RETURNS TABLE
             (
+                "ProductId"       INTEGER,
                 "ProductUuid"     CHARACTER VARYING,
                 "Name"            CHARACTER VARYING,
                 "Description"     CHARACTER VARYING,
@@ -15,7 +16,8 @@ CREATE FUNCTION orf."GetProducts"()
 AS
 $$
 BEGIN
-    RETURN QUERY SELECT pro."ProductUuid",
+    RETURN QUERY SELECT pro."ProductId"::INTEGER,
+                        pro."ProductUuid",
                         pro."Name",
                         pro."Description",
                         pro."Price",
@@ -33,6 +35,7 @@ DROP FUNCTION IF EXISTS orf."GetProduct"(CHARACTER VARYING);
 CREATE FUNCTION orf."GetProduct"("reqProductUuid" CHARACTER VARYING)
     RETURNS TABLE
             (
+                "ProductId"       INTEGER,
                 "Name"            CHARACTER VARYING,
                 "Description"     CHARACTER VARYING,
                 "Price"           BIGINT,
@@ -45,7 +48,8 @@ CREATE FUNCTION orf."GetProduct"("reqProductUuid" CHARACTER VARYING)
 AS
 $$
 BEGIN
-    RETURN QUERY SELECT pro."Name",
+    RETURN QUERY SELECT pro."ProductId"::INTEGER,
+                        pro."Name",
                         pro."Description",
                         pro."Price",
                         pro."PictureUrl",
@@ -157,6 +161,7 @@ DROP FUNCTION IF EXISTS orf."GetBasketItems"(INTEGER);
 CREATE FUNCTION orf."GetBasketItems"("reqBasketId" INTEGER)
     RETURNS TABLE
             (
+                "ProductId"   INTEGER,
                 "ProductUuid" CHARACTER VARYING,
                 "Product"     CHARACTER VARYING,
                 "Brand"       CHARACTER VARYING,
@@ -170,7 +175,8 @@ AS
 $$
 BEGIN
 
-    RETURN QUERY SELECT pr."ProductUuid",
+    RETURN QUERY SELECT pr."ProductId"::INTEGER,
+                        pr."ProductUuid",
                         pr."Name",
                         br."Brand",
                         ca."Category",
@@ -186,8 +192,8 @@ END
 $$;
 
 
-DROP FUNCTION IF EXISTS orf."AddItemToBasket"(CHARACTER VARYING, CHARACTER VARYING, INTEGER);
-CREATE FUNCTION orf."AddItemToBasket"("reqProductUuid" CHARACTER VARYING,
+DROP FUNCTION IF EXISTS orf."AddItemToBasket"(INTEGER, CHARACTER VARYING, INTEGER);
+CREATE FUNCTION orf."AddItemToBasket"("reqProductId" INTEGER,
                                       "reqBuyerId" CHARACTER VARYING,
                                       "reqQuantity" INTEGER)
     RETURNS TABLE
@@ -200,10 +206,10 @@ CREATE FUNCTION orf."AddItemToBasket"("reqProductUuid" CHARACTER VARYING,
 AS
 $$
 DECLARE
-    _product_id     INTEGER;
-    _basket_id      INTEGER;
-    _item_id        INTEGER;
-    _basket         RECORD;
+    _product_id INTEGER;
+    _basket_id  INTEGER;
+    _item_id    INTEGER;
+    _basket     RECORD;
 BEGIN
 
     SELECT * FROM orf."GetBasket"("reqBuyerId") INTO _basket;
@@ -217,7 +223,7 @@ BEGIN
     SELECT p."ProductId"
     INTO _product_id
     FROM orf."Products" p
-    WHERE p."ProductUuid" = "reqProductUuid"
+    WHERE p."ProductId"::INTEGER = "reqProductId"
     LIMIT 1;
 
     IF _product_id IS NULL THEN
@@ -264,8 +270,8 @@ END
 $$;
 
 
-DROP FUNCTION IF EXISTS orf."RemoveItemFromBasket"(CHARACTER VARYING, CHARACTER VARYING, INTEGER);
-CREATE FUNCTION orf."RemoveItemFromBasket"("reqProductUuid" CHARACTER VARYING, "reqBuyerId" CHARACTER VARYING,
+DROP FUNCTION IF EXISTS orf."RemoveItemFromBasket"(INTEGER, CHARACTER VARYING, INTEGER);
+CREATE FUNCTION orf."RemoveItemFromBasket"("reqProductId" INTEGER, "reqBuyerId" CHARACTER VARYING,
                                            "reqQuantity" INTEGER)
     RETURNS TABLE
             (
@@ -289,7 +295,7 @@ BEGIN
         RETURN;
     end if;
 
-    SELECT p."ProductId" INTO _product_id FROM orf."Products" p WHERE p."ProductUuid" = "reqProductUuid" LIMIT 1;
+    SELECT p."ProductId" INTO _product_id FROM orf."Products" p WHERE p."ProductId"::INTEGER = "reqProductId" LIMIT 1;
 
     IF _product_id IS NULL THEN
         RETURN QUERY SELECT 'Product does not exist, check and try again.'::CHARACTER VARYING,

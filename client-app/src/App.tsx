@@ -12,6 +12,7 @@ import { useStoreContext } from "./context/StoreContext";
 import About from "./features/About/About";
 import Basket from "./features/Basket/Basket";
 import Catalog from "./features/Catalog/Catalog";
+import Checkout from "./features/Checkout/Checkout";
 import Home from "./features/Home/Home";
 import "./scss/App.scss";
 import { getCookie } from "./util/util";
@@ -32,7 +33,7 @@ function App() {
     }
   }, [setBasket]);
 
-  if(loading) return <LoadingComponent message='Initializing App' />
+  if(loading) return <LoadingComponent message='Oriana Furniture' />
 
   return (
     <>
@@ -54,6 +55,7 @@ function App() {
         <Route path="/catalog" element={<Catalog />} />
         <Route path="/catalog/:productUuid" element={<ProductDetails />} />
         <Route path="/basket" element={<Basket />} />
+        <Route path="/checkout" element={<Checkout />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

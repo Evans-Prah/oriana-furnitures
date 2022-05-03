@@ -17,16 +17,16 @@ namespace helpers.BasketHelper
 
         public async Task<BasketInfo> GetBasket(string buyerId) => await _dbHelper.GetBasket(buyerId);
 
-        public async Task<HelpersResponse> AddItemToBasket(string productUuid, int quantity, string buyerId, StringBuilder logs)
+        public async Task<HelpersResponse> AddItemToBasket(int productId, int quantity, string buyerId, StringBuilder logs)
         {
             logs.AppendLine("-- AddItemToBasket");
-            logs.AppendLine($"Request Payload: {JsonConvert.SerializeObject(new { productUuid, quantity, buyerId })}");
+            logs.AppendLine($"Request Payload: {JsonConvert.SerializeObject(new { productId, quantity, buyerId })}");
 
-            if (string.IsNullOrWhiteSpace(productUuid)) return new HelpersResponse { Successful = false, ResponseMessage = "Product is required" };
+            if (productId < 1) return new HelpersResponse { Successful = false, ResponseMessage = "Product is required" };
 
             if (quantity < 1) return new HelpersResponse { Successful = false, ResponseMessage = "Quantity should be at least 1" };
 
-            var dbResponse = await _dbHelper.AddItemToBasket(productUuid, quantity, buyerId);
+            var dbResponse = await _dbHelper.AddItemToBasket(productId, quantity, buyerId);
             logs.AppendLine($"DB Response: {JsonConvert.SerializeObject(dbResponse)}");
 
             if (!string.IsNullOrWhiteSpace(dbResponse.Message) && dbResponse.ResponseCode == 100) return new HelpersResponse
@@ -58,16 +58,16 @@ namespace helpers.BasketHelper
             };
         }
 
-        public async Task<HelpersResponse> RemoveItemFromBasket(string productUuid, int quantity, string buyerId, StringBuilder logs)
+        public async Task<HelpersResponse> RemoveItemFromBasket(int productId, int quantity, string buyerId, StringBuilder logs)
         {
             logs.AppendLine("-- RemoveItemFromBasket");
-            logs.AppendLine($"Request Payload: {JsonConvert.SerializeObject(new { productUuid, quantity, buyerId })}");
+            logs.AppendLine($"Request Payload: {JsonConvert.SerializeObject(new { productId, quantity, buyerId })}");
 
-            if (string.IsNullOrWhiteSpace(productUuid)) return new HelpersResponse { Successful = false, ResponseMessage = "Product is required" };
+            if (productId < 1) return new HelpersResponse { Successful = false, ResponseMessage = "Product is required" };
 
             if (quantity < 1) return new HelpersResponse { Successful = false, ResponseMessage = "Quantity should be at least 1" };
 
-            var dbResponse = await _dbHelper.RemoveItemFromBasket(productUuid, quantity, buyerId);
+            var dbResponse = await _dbHelper.RemoveItemFromBasket(productId, quantity, buyerId);
             logs.AppendLine($"DB Response: {JsonConvert.SerializeObject(dbResponse)}");
 
             if (!string.IsNullOrWhiteSpace(dbResponse.Message) && dbResponse.ResponseCode == 400) return new HelpersResponse { Successful = false, ResponseMessage = dbResponse.Message };

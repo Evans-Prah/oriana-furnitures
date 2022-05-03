@@ -4,7 +4,7 @@ import { Basket } from "../models/Basket";
 interface StoreContextValue {
   basket: Basket | null;
   setBasket: (basket: Basket) => void;
-  removeItem: (productUuid: string, quantity: number) => void;
+  removeItem: (productId: number, quantity: number) => void;
 }
 
 export const StoreContext = createContext<StoreContextValue | undefined>(
@@ -24,11 +24,11 @@ export function useStoreContext() {
 export function StoreProvider({ children }: PropsWithChildren<any>) {
   const [basket, setBasket] = useState<Basket | null>(null);
 
-  function removeItem(productUuid: string, quantity: number) {
+  function removeItem(productId: number, quantity: number) {
     if (!basket) return;
     const items = [...basket.data.items];
     const itemIndex = items.findIndex(
-      (item) => item.productUuid === productUuid
+      (item) => item.productId === productId
     );
     if (itemIndex >= 0) {
       items[itemIndex].quantity -= quantity;

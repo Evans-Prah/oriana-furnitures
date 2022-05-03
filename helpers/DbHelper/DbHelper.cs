@@ -81,11 +81,11 @@ namespace helpers.DbHelper
 
 
 
-        public async Task<AddBasketDbResponse> AddItemToBasket(string productUuid, int quantity, string buyerId)
+        public async Task<AddBasketDbResponse> AddItemToBasket(int productId, int quantity, string buyerId)
         {
             var parameters = new List<StoreProcedureParameter>
             {
-                new StoreProcedureParameter { Name = "reqProductUuid", Type = NpgsqlDbType.Varchar, Value = productUuid},
+                new StoreProcedureParameter { Name = "reqProductId", Type = NpgsqlDbType.Integer, Value = productId},
                 new StoreProcedureParameter { Name = "reqQuantity", Type = NpgsqlDbType.Integer, Value = quantity},
                 new StoreProcedureParameter { Name = "reqBuyerId", Type = NpgsqlDbType.Varchar, Value = buyerId},
             };
@@ -97,11 +97,11 @@ namespace helpers.DbHelper
             return new AddBasketDbResponse { Message = "an error occurred" };
         }
 
-        public async Task<BasketDbResponse> RemoveItemFromBasket(string productUuid, int quantity, string buyerId)
+        public async Task<BasketDbResponse> RemoveItemFromBasket(int productId, int quantity, string buyerId)
         {
             var parameters = new List<StoreProcedureParameter>
             {
-                new StoreProcedureParameter { Name = "reqProductUuid", Type = NpgsqlDbType.Varchar, Value = productUuid},
+                 new StoreProcedureParameter { Name = "reqProductId", Type = NpgsqlDbType.Integer, Value = productId},
                 new StoreProcedureParameter { Name = "reqQuantity", Type = NpgsqlDbType.Integer, Value = quantity},
                 new StoreProcedureParameter { Name = "reqBuyerId", Type = NpgsqlDbType.Varchar, Value = buyerId},
             };

@@ -47,7 +47,7 @@ namespace API.Controllers
         
 
         [HttpPost("[action]")]
-        public async Task<ApiResponse> AddItemToBasket(string productUuid, int quantity)
+        public async Task<ApiResponse> AddItemToBasket(int productId, int quantity)
         {
             StringBuilder logs = new();
             logs.AppendLine($"Request @ {DateTime.Now}, Path: {Request.Path}");
@@ -58,7 +58,7 @@ namespace API.Controllers
 
                 if (buyerId == null) buyerId = Guid.NewGuid().ToString();
 
-                var process = await _basketHelper.AddItemToBasket(productUuid, quantity, buyerId, logs);
+                var process = await _basketHelper.AddItemToBasket(productId, quantity, buyerId, logs);
 
                 var cookieOptions = new CookieOptions { IsEssential = true, Expires = DateTime.Now.AddDays(30) };
                 Response.Cookies.Append("buyerId", buyerId, cookieOptions);
@@ -75,7 +75,7 @@ namespace API.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<ApiResponse> RemoveItemFromBasket(string productUuid, int quantity)
+        public async Task<ApiResponse> RemoveItemFromBasket(int productId, int quantity)
         {
             StringBuilder logs = new();
             logs.AppendLine($"Request @ {DateTime.Now}, Path: {Request.Path}");
@@ -86,7 +86,7 @@ namespace API.Controllers
 
                 if (buyerId == null) buyerId = Guid.NewGuid().ToString();
 
-                var process = await _basketHelper.RemoveItemFromBasket(productUuid, quantity, buyerId, logs);
+                var process = await _basketHelper.RemoveItemFromBasket(productId, quantity, buyerId, logs);
 
                 if (!process.Successful) return new ApiResponse { Success = process.Successful, ResponseMessage = process.ResponseMessage };
 

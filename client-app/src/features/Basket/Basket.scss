@@ -16,6 +16,28 @@
   text-transform: uppercase;
 }
 
+.checkout {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.checkout-btn {
+  background-color: $color-secondary;
+  color: $color-primary;
+  border: none;
+  border-radius: 0;
+  font-family: $font-display;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  padding: 1.8rem 3rem;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $color-grey-dark-1;
+    color: #fff;
+  }
+}
+
 .basket-container {
   display: grid;
   grid-template-columns: 4fr 1fr;
@@ -66,6 +88,10 @@
       table-layout: fixed;
       width: 100%;
       border-collapse: collapse;
+    }
+
+    caption {
+      font-size: 2rem;
     }
 
     thead th {
@@ -151,6 +177,53 @@
         font-size: 1.2rem;
         padding: 1rem 1.2rem;
       }
+    }
+  }
+}
+
+.container__summary {
+  background-color: $color-primary-light;
+  height: 25rem;
+  padding: 2rem;
+
+  &-title {
+    font-size: 2rem;
+    text-transform: uppercase;
+  }
+
+  &-subtotal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1.2rem 0;
+
+    &-title,
+    &-value {
+      font-size: 1.4rem;
+    }
+  }
+
+  &-delivery-fee {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1.2rem 0;
+
+    &-title,
+    &-value {
+      font-size: 1.4rem;
+    }
+  }
+
+  &-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1.2rem 0;
+
+    &-title,
+    &-value {
+      font-size: 1.4rem;
     }
   }
 }

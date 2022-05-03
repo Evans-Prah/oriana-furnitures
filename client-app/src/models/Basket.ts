@@ -10,6 +10,7 @@ export interface Basket {
 }
 
 export interface BasketItem {
+  productId: number;
   productUuid: string;
   product: string;
   brand: string;

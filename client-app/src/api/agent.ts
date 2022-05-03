@@ -47,8 +47,7 @@ const Catalog = {
       return [] as Product[];
     }
   },
-
-  getProduct:  (productUuid: string): Promise<Product> => {
+  getProduct: (productUuid: string): Promise<Product> => {
     return new Promise((resolve) => {
       if (productUuid !== null || productUuid !== "") {
         getAxios()
@@ -112,14 +111,14 @@ const Reviews = {
 
 const Basket = {
   getBasket: () => requests.get("basket/GetBasket"),
-  addItem: (productUuid: string, quantity = 1) =>
+  addItem: (productId: number, quantity = 1) =>
     requests.post(
-      `basket/AddItemToBasket?productUuid=${productUuid}&quantity=${quantity}`,
+      `basket/AddItemToBasket?productId=${productId}&quantity=${quantity}`,
       {}
     ),
-  removeItem: (productUuid: string, quantity: number) =>
+  removeItem: (productId: number, quantity: number) =>
     requests.post(
-      `basket/RemoveItemFromBasket?productUuid=${productUuid}&quantity=${quantity}`,
+      `basket/RemoveItemFromBasket?productId=${productId}&quantity=${quantity}`,
       {}
     ),
 };

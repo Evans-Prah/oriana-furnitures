@@ -10,8 +10,8 @@ namespace helpers.DbHelper
         Task<List<ReviewInfo>> GetProductReviews(string productUuid);
         Task<TotalRatingInfo?> GetTotalProductReviews(string productUuid);
         Task<BasketInfo> GetBasket(string? buyerId);
-        Task<AddBasketDbResponse> AddItemToBasket(string productUuid, int quantity, string buyerId);
-        Task<BasketDbResponse> RemoveItemFromBasket(string productUuid, int quantity, string buyerId);
+        Task<AddBasketDbResponse> AddItemToBasket(int productId, int quantity, string buyerId);
+        Task<BasketDbResponse> RemoveItemFromBasket(int productId, int quantity, string buyerId);
        
     }
 }

@@ -13,9 +13,9 @@ const ProductCard = ({ product }: Props) => {
   const [loading, setLoading] = useState(false);
   const { setBasket } = useStoreContext();
 
-  const addItemHandler = (productUuid: string) => {
+  const addItemHandler = (productId: number) => {
     setLoading(true);
-    agent.Basket.addItem(productUuid)
+    agent.Basket.addItem(productId)
       .then((res) => {
         setLoading(false);
         setBasket(res);
@@ -49,7 +49,7 @@ const ProductCard = ({ product }: Props) => {
         <div className="product-card__btns">
           <button
             className="btn product-card__btns-add-btn"
-            onClick={() => addItemHandler(product.productUuid)}
+            onClick={() => addItemHandler(product.productId)}
           >
             Add to Cart
           </button>

@@ -6,8 +6,8 @@ namespace helpers.BasketHelper
 {
     public interface IBasketHelper
     {
-        Task<HelpersResponse> AddItemToBasket(string productUuid, int quantity, string buyerId, StringBuilder logs);
+        Task<HelpersResponse> AddItemToBasket(int productId, int quantity, string buyerId, StringBuilder logs);
         Task<BasketInfo> GetBasket(string buyerId);
-        Task<HelpersResponse> RemoveItemFromBasket(string productUuid, int quantity, string buyerId, StringBuilder logs);
+        Task<HelpersResponse> RemoveItemFromBasket(int productId, int quantity, string buyerId, StringBuilder logs);
     }
 }

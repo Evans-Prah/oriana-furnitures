@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import agent from "../../api/agent";
+import { useStoreContext } from "../../context/StoreContext";
 import { Product } from "../../models/Product";
 import { Review, Rating } from "../../models/Review";
 import LoadingComponent from "../Layout/LoadingComponent";
@@ -9,13 +10,28 @@ import "./ProductDetails.scss";
 import ProductReview from "./ProductReview";
 
 const ProductDetails = () => {
+  const { basket, setBasket, removeItem } = useStoreContext();
   const { productUuid } = useParams<{ productUuid: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [totalRating, setTotalRating] = useState<Rating>();
   const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+
+  const item = basket?.data?.items;
+  const basketItem = basket?.data?.items.find(
+    (i) => i.productId === product?.productId
+  );
+
+  function handleInputChange(event: any) {
+    if (event.target.value >= 0) {
+      setQuantity(parseInt(event.target.value));
+    }
+  }
 
   useEffect(() => {
+    if (basketItem) setQuantity(basketItem.quantity);
     agent.Catalog.getProduct(productUuid!)
       .then((res) => {
         if (res) {
@@ -26,7 +42,7 @@ const ProductDetails = () => {
         }
       })
       .catch((error) => console.log(error));
-  }, [productUuid]);
+  }, [productUuid, basketItem]);
 
   useEffect(() => {
     agent.Reviews.getProductReviews(productUuid!)
@@ -53,6 +69,25 @@ const ProductDetails = () => {
       })
       .catch((error) => console.log(error));
   }, [productUuid]);
+
+  const handleUpdateCart = () => {
+    setSubmitting(true);
+    if (!basketItem || quantity > basketItem.quantity) {
+      const updatedQuantity = basketItem
+        ? quantity - basketItem.quantity
+        : quantity;
+      agent.Basket.addItem(product?.productId!, updatedQuantity)
+        .then((basket) => setBasket(basket))
+        .catch((error) => console.log(error))
+        .finally(() => setSubmitting(false));
+    } else {
+      const updatedQuantity = basketItem.quantity - quantity;
+      agent.Basket.removeItem(product?.productId!, updatedQuantity)
+        .then(() => removeItem(product?.productId!, updatedQuantity))
+        .catch((error) => console.log(error))
+        .finally(() => setSubmitting(false));
+    }
+  };
 
   if (loading) return <LoadingComponent />;
 
@@ -90,6 +125,31 @@ const ProductDetails = () => {
           Quantity In Stock: {product.quantityInStock}
         </h3>
         <hr />
+        <div className="container__product-details-cart-section">
+          <label
+            htmlFor=""
+            className="container__product-details-cart-section-label"
+          >
+            Quantity in Cart
+          </label>
+          <input
+            type="number"
+            className="container__product-details-cart-section-input"
+            name="quantity"
+            value={quantity}
+            onChange={handleInputChange}
+          />
+          <button
+            type="button"
+            className="cartBtn"
+            onClick={handleUpdateCart}
+            disabled={
+              basketItem?.quantity === quantity || (!item && quantity === 0)
+            }
+          >
+            {basketItem ? "Update Quantity" : "Add to Cart"}
+          </button>
+        </div>
       </div>
       <div className="container__product-reviews">
         <h2 className="container__product-reviews-total">
