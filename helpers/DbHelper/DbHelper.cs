@@ -1,5 +1,6 @@
 ﻿using DataAccess.Executors;
 using DataAccess.Models;
+using models.Authentication;
 using models.Basket;
 using models.Product;
 using NpgsqlTypes;
@@ -34,7 +35,7 @@ namespace helpers.DbHelper
 
             return null;
         }
-        
+
         public async Task<List<ReviewInfo>> GetProductReviews(string productUuid)
         {
             var parameters = new List<StoreProcedureParameter>
@@ -42,7 +43,7 @@ namespace helpers.DbHelper
                 new StoreProcedureParameter {Name = "reqProductUuid", Type = NpgsqlDbType.Varchar, Value = productUuid}
             };
 
-           return await _storedProcedureExecutor.ExecuteStoredProcedure<ReviewInfo>(_connectionStrings.Default, "\"GetProductReviews\"", parameters);
+            return await _storedProcedureExecutor.ExecuteStoredProcedure<ReviewInfo>(_connectionStrings.Default, "\"GetProductReviews\"", parameters);
         }
 
         public async Task<TotalRatingInfo?> GetTotalProductReviews(string productUuid)
@@ -56,7 +57,7 @@ namespace helpers.DbHelper
 
             if (response.Count > 0) return response[0];
 
-            return new TotalRatingInfo { Message = "Product has no reviews"};
+            return new TotalRatingInfo { Message = "Product has no reviews" };
         }
 
         #endregion
@@ -71,9 +72,9 @@ namespace helpers.DbHelper
                  new StoreProcedureParameter {Name = "reqBuyerId", Type = NpgsqlDbType.Varchar, Value = buyerId}
              };
 
-          var response = await _storedProcedureExecutor.ExecuteStoredProcedure<BasketInfo>(_connectionStrings.Default, "\"GetBasket\"", parameters);
-           
-            
+            var response = await _storedProcedureExecutor.ExecuteStoredProcedure<BasketInfo>(_connectionStrings.Default, "\"GetBasket\"", parameters);
+
+
             if (response.Count > 0) return response[0];
 
             return new BasketInfo { };
@@ -117,5 +118,44 @@ namespace helpers.DbHelper
         #endregion
 
 
+        #region Authentication
+
+        public async Task<string> CreateUserAccount(string accountUuid, string username, string password, string email, string phoneNumber)
+        {
+            string response = "";
+
+            var parameters = new List<StoreProcedureParameter>
+            {
+                new StoreProcedureParameter { Name = "reqAccountUuid", Type = NpgsqlDbType.Varchar, Value = accountUuid},
+                new StoreProcedureParameter { Name = "reqUsername", Type = NpgsqlDbType.Varchar, Value = username},
+                new StoreProcedureParameter { Name = "reqPassword", Type = NpgsqlDbType.Varchar, Value = password},
+                new StoreProcedureParameter { Name = "reqEmail", Type = NpgsqlDbType.Varchar, Value = email},
+                new StoreProcedureParameter { Name = "reqPhoneNumber", Type = NpgsqlDbType.Varchar, Value = phoneNumber},
+            };
+
+            await _storedProcedureExecutor.ExecuteStoredProcedure(_connectionStrings.Default, "\"CreateUserAccount\"", parameters, (reader) =>
+            {
+                if (reader.Read()) response = reader.GetString(0);
+            });
+
+            return response;
+        }
+
+        public async Task<AccountLoginInfo> ValidateAccountLogin(string username, string password)
+        {
+            var parameters = new List<StoreProcedureParameter>
+            {
+                new StoreProcedureParameter { Name = "reqUsername", Type = NpgsqlDbType.Varchar, Value = username},
+                new StoreProcedureParameter { Name = "reqPassword", Type = NpgsqlDbType.Varchar, Value = password},
+            };
+
+            var response = await _storedProcedureExecutor.ExecuteStoredProcedure<AccountLoginInfo>(_connectionStrings.Default, "\"ValidateAccountLogin\"", parameters);
+
+            if (response.Count > 0) return response[0];
+
+            return new AccountLoginInfo { ResponseMessage = "An error occurred" };
+        } 
+        
+        #endregion
     }
 }

@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import { useStoreContext } from "../../context/StoreContext";
+import { useAppSelector } from "../../store/configureStore";
 import "./Navbar.scss";
 
 export default function Navbar() {
-  const {basket} = useStoreContext();
+  const {basket} = useAppSelector(state => state.basket); 
   const itemCount= basket?.data?.items?.reduce((sum, item) => sum + item.quantity, 0);
   console.log(itemCount);
 

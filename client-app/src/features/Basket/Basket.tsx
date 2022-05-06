@@ -2,30 +2,22 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import agent from "../../api/agent";
 import { useStoreContext } from "../../context/StoreContext";
+import { addBasketItemAsync, removeBasketItemAsync, removeItem, setBasket } from "../../store/basketSlice";
+import { useAppDispatch, useAppSelector } from "../../store/configureStore";
 import "./Basket.scss";
 
 const Basket = () => {
-  const { basket, setBasket, removeItem } = useStoreContext();
+  const { basket } = useAppSelector((state) => state.basket);
+  const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
 
-  const addItemHandler = (productId: number) => {
-    setLoading(true);
-    agent.Basket.addItem(productId)
-      .then((basket) => {
-        setBasket(basket);
-      })
-      .catch((err) => {
-        setLoading(false);
-        console.log(err);
-      });
-  };
 
   const removeItemHandler = (productId: number, quantity = 1) => {
     setLoading(true);
     agent.Basket.removeItem(productId, quantity)
       .then(() => {
         setLoading(false);
-        removeItem(productId, quantity);
+        dispatch(removeItem({productId, quantity}));
       })
       .catch((err) => {
         setLoading(false);
@@ -89,7 +81,7 @@ const Basket = () => {
                   <span className="quantity">{item.quantity}</span>
                   <svg
                     className="plus-icon"
-                    onClick={() => addItemHandler(item.productId)}
+                    onClick={() => dispatch(addBasketItemAsync({productId: item.productId}))}
                   >
                     <use xlinkHref="./images/sprite.svg#icon-plus"></use>
                   </svg>
@@ -99,7 +91,7 @@ const Basket = () => {
                   <svg
                     className="trash-icon"
                     onClick={() =>
-                      removeItemHandler(item.productId, item.quantity)
+                      dispatch(removeBasketItemAsync({productId: item.productId, quantity: item.quantity, name: 'del'}))
                     }
                   >
                     <use xlinkHref="./images/sprite.svg#icon-trash"></use>

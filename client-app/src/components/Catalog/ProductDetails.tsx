@@ -1,23 +1,28 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import agent from "../../api/agent";
-import { useStoreContext } from "../../context/StoreContext";
-import { Product } from "../../models/Product";
-import { Review, Rating } from "../../models/Review";
+import {
+  addBasketItemAsync,
+  removeBasketItemAsync,
+} from "../../store/basketSlice";
+import { fetchProductAsync } from "../../store/catalogSlice";
+import { useAppDispatch, useAppSelector } from "../../store/configureStore";
+import { setProductRating } from "../../store/ratingSlice";
+import { setProductReviews } from "../../store/reviewsSlice";
 import LoadingComponent from "../Layout/LoadingComponent";
 import NotFound from "../Layout/NotFound";
 import "./ProductDetails.scss";
 import ProductReview from "./ProductReview";
 
 const ProductDetails = () => {
-  const { basket, setBasket, removeItem } = useStoreContext();
+  const { basket } = useAppSelector((state) => state.basket);
+  const { productReviews } = useAppSelector((state) => state.productReviews);
+  const { rating } = useAppSelector((state) => state.rating);
+  const {product} = useAppSelector((state) => state.product);
+  const dispatch = useAppDispatch();
   const { productUuid } = useParams<{ productUuid: string }>();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [totalRating, setTotalRating] = useState<Rating>();
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(0);
-  const [submitting, setSubmitting] = useState(false);
 
   const item = basket?.data?.items;
   const basketItem = basket?.data?.items.find(
@@ -32,60 +37,54 @@ const ProductDetails = () => {
 
   useEffect(() => {
     if (basketItem) setQuantity(basketItem.quantity);
-    agent.Catalog.getProduct(productUuid!)
-      .then((res) => {
-        if (res) {
-          setLoading(false);
-          setProduct(res);
-        } else {
-          setLoading(false);
-        }
-      })
-      .catch((error) => console.log(error));
-  }, [productUuid, basketItem]);
+    dispatch(fetchProductAsync(productUuid!))
+  }, [productUuid, basketItem, dispatch]);
 
   useEffect(() => {
     agent.Reviews.getProductReviews(productUuid!)
       .then((res) => {
         if (res) {
           setLoading(false);
-          setReviews(res);
+          dispatch(setProductReviews(res));
         } else {
           console.log(res);
         }
       })
       .catch((error) => console.log(error));
-  }, [productUuid]);
+  }, [productUuid, dispatch]);
 
   useEffect(() => {
     agent.Reviews.getTotalProductReviews(productUuid!)
       .then((res) => {
         if (res) {
           setLoading(false);
-          setTotalRating(res);
+          dispatch(setProductRating(res));
         } else {
           console.log(res);
         }
       })
       .catch((error) => console.log(error));
-  }, [productUuid]);
+  }, [productUuid, dispatch]);
 
   const handleUpdateCart = () => {
-    setSubmitting(true);
     if (!basketItem || quantity > basketItem.quantity) {
       const updatedQuantity = basketItem
         ? quantity - basketItem.quantity
         : quantity;
-      agent.Basket.addItem(product?.productId!, updatedQuantity)
-        .then((basket) => setBasket(basket))
-        .catch((error) => console.log(error))
-        .finally(() => setSubmitting(false));
+      dispatch(
+        addBasketItemAsync({
+          productId: product?.productId!,
+          quantity: updatedQuantity,
+        })
+      );
     } else {
       const updatedQuantity = basketItem.quantity - quantity;
-      agent.Basket.removeItem(product?.productId!, updatedQuantity)
-        .then(() => removeItem(product?.productId!, updatedQuantity))
-        .catch((error) => console.log(error))
-        .finally(() => setSubmitting(false));
+      dispatch(
+        removeBasketItemAsync({
+          productId: product?.productId!,
+          quantity: updatedQuantity,
+        })
+      );
     }
   };
 
@@ -153,8 +152,8 @@ const ProductDetails = () => {
       </div>
       <div className="container__product-reviews">
         <h2 className="container__product-reviews-total">
-          Customer Reviews ({totalRating?.total})
-          {new Array(totalRating?.averageRating).fill(null).map((_, index) => (
+          Customer Reviews ({rating?.total})
+          {new Array(rating?.averageRating).fill(null).map((_, index) => (
             <span
               className="container__product-reviews-averageRating"
               key={index}
@@ -164,8 +163,8 @@ const ProductDetails = () => {
           ))}
         </h2>
         <hr />
-        {reviews.length > 0 ? (
-          reviews.map((review) => (
+        {productReviews.length > 0 ? (
+          productReviews.map((review) => (
             <ProductReview key={review.reviewUuid} review={review} />
           ))
         ) : (

@@ -31,6 +31,49 @@ BEGIN
 END
 $$;
 
+DROP FUNCTION IF EXISTS orf."GetProducts"(INTEGER, INTEGER);
+CREATE FUNCTION orf."GetProducts"("reqPageNumber" INTEGER, "reqPageSize" INTEGER)
+    RETURNS TABLE
+            (
+                "ProductId"       INTEGER,
+                "ProductUuid"     CHARACTER VARYING,
+                "Name"            CHARACTER VARYING,
+                "Description"     CHARACTER VARYING,
+                "Price"           BIGINT,
+                "PictureUrl"      CHARACTER VARYING,
+                "Category"        CHARACTER VARYING,
+                "Brand"           CHARACTER VARYING,
+                "QuantityInStock" INTEGER
+            )
+    LANGUAGE plpgsql
+AS
+$$
+DECLARE
+    _page_offset INTEGER := 0;
+BEGIN
+    _page_offset := (("reqPageNumber" - 1) * "reqPageSize");
+
+    RETURN QUERY SELECT pro."ProductId"::INTEGER,
+                        pro."ProductUuid",
+                        pro."Name",
+                        pro."Description",
+                        pro."Price",
+                        pro."PictureUrl",
+                        ca."Category",
+                        br."Brand",
+                        pro."QuantityInStock"
+                 FROM orf."Products" pro
+                          LEFT JOIN orf."Categories" ca ON pro."CategoryId" = ca."CategoryId"
+                          LEFT JOIN orf."Brands" br ON pro."BrandId" = br."BrandId"
+                 ORDER BY pro."ProductId"
+                 LIMIT "reqPageSize" OFFSET _page_offset;
+END
+$$;
+
+SELECT *
+FROM orf."GetProducts"(5, 5);
+
+
 DROP FUNCTION IF EXISTS orf."GetProduct"(CHARACTER VARYING);
 CREATE FUNCTION orf."GetProduct"("reqProductUuid" CHARACTER VARYING)
     RETURNS TABLE
@@ -338,3 +381,115 @@ END
 $$;
 
 
+DROP FUNCTION IF EXISTS orf."CreateUserAccount"(CHARACTER VARYING, CHARACTER VARYING, CHARACTER VARYING,
+                                                CHARACTER VARYING, CHARACTER VARYING);
+CREATE FUNCTION orf."CreateUserAccount"("reqAccountUuid" CHARACTER VARYING,
+                                        "reqUsername" CHARACTER VARYING,
+                                        "reqPassword" CHARACTER VARYING,
+                                        "reqEmail" CHARACTER VARYING,
+                                        "reqPhoneNumber" CHARACTER VARYING)
+    RETURNS CHARACTER VARYING
+    LANGUAGE plpgsql AS
+$$
+DECLARE
+    account RECORD;
+BEGIN
+
+
+    SELECT uc."AccountUuid", uc."Username", uc."Password", uc."Email", uc."PhoneNumber"
+    FROM orf."UserAccount" uc
+    WHERE uc."AccountUuid" = "reqAccountUuid"
+       OR upper(uc."Username") = upper("reqUsername")
+       OR upper(uc."Password") = upper("reqPassword")
+       OR uc."PhoneNumber" = "reqPhoneNumber"
+    LIMIT 1
+    INTO account;
+
+    IF account."Username" IS NOT NULL AND account."Username" = "reqUsername" THEN
+        RETURN 'Username already exists, use different username.'::CHARACTER VARYING;
+    END IF;
+
+    IF account."Email" IS NOT NULL AND account."Email" = "reqEmail" THEN
+        RETURN 'Email already exists, use different email.'::CHARACTER VARYING;
+    END IF;
+
+    IF account."PhoneNumber" IS NOT NULL AND account."PhoneNumber" = "reqPhoneNumber" THEN
+        RETURN 'Phone number already exists, use different Phone number.'::CHARACTER VARYING;
+    END IF;
+
+    INSERT INTO orf."UserAccount"("AccountUuid", "Username", "Password", "Email", "PhoneNumber", "IsActive",
+                                  "UserRoleId")
+    VALUES ("reqAccountUuid", trim("reqUsername"), trim("reqPassword"), "reqEmail", "reqPhoneNumber", TRUE, 2);
+
+    RETURN '':: CHARACTER VARYING;
+END
+$$;
+
+
+DROP FUNCTION IF EXISTS orf."ValidateAccountLogin"(CHARACTER VARYING, CHARACTER VARYING);
+CREATE FUNCTION orf."ValidateAccountLogin"("reqUsername" CHARACTER VARYING, "reqPassword" CHARACTER VARYING)
+    RETURNS TABLE
+            (
+                "ResponseMessage" CHARACTER VARYING,
+                "Username"        CHARACTER VARYING,
+                "Email"           CHARACTER VARYING,
+                "PhoneNumber"     CHARACTER VARYING,
+                "AccountUuid"     CHARACTER VARYING,
+                "AccountRole"     CHARACTER VARYING,
+                "LastLogin"       TIMESTAMP WITHOUT TIME ZONE
+            )
+    LANGUAGE plpgsql
+AS
+$$
+DECLARE
+    userRecord RECORD;
+BEGIN
+
+    SELECT uc."IsActive",
+           uc."AccountId",
+           uc."AccountUuid",
+           uc."Username",
+           uc."Email",
+           uc."PhoneNumber",
+           uc."LastLogin",
+           ur."Role"
+    FROM orf."UserAccount" uc
+             LEFT JOIN orf."UserRoles" ur ON uc."UserRoleId" = ur."RoleId"
+    WHERE lower(uc."Username") = lower("reqUsername")
+      AND uc."Password" = "reqPassword"
+    LIMIT 1
+    INTO userRecord;
+
+    IF userRecord."AccountId" IS NULL THEN
+        RETURN QUERY SELECT 'Invalid login credentials, check and try again'::CHARACTER VARYING,
+                            NULL::CHARACTER VARYING,
+                            NULL::CHARACTER VARYING,
+                            NULL::CHARACTER VARYING,
+                            NULL::CHARACTER VARYING,
+                            NULL::CHARACTER VARYING,
+                            NULL::TIMESTAMP WITHOUT TIME ZONE;
+        RETURN;
+    END IF;
+
+    IF userRecord."IsActive" = FALSE THEN
+        RETURN QUERY SELECT 'User account is disabled'::CHARACTER VARYING,
+                            NULL::CHARACTER VARYING,
+                            NULL::CHARACTER VARYING,
+                            NULL::CHARACTER VARYING,
+                            NULL::CHARACTER VARYING,
+                            NULL::CHARACTER VARYING,
+                            NULL::TIMESTAMP WITHOUT TIME ZONE;
+        RETURN;
+    END IF;
+
+    UPDATE orf."UserAccount" uc SET "LastLogin" = NOW() AT TIME ZONE 'UTC' WHERE "AccountId" = userRecord."AccountId";
+
+    RETURN QUERY SELECT ''::CHARACTER VARYING,
+                        userRecord."Username",
+                        userRecord."Email",
+                        userRecord."PhoneNumber",
+                        userRecord."AccountUuid",
+                        userRecord."Role",
+                        userRecord."LastLogin";
+END
+$$;

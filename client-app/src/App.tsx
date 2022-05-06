@@ -15,17 +15,19 @@ import Catalog from "./features/Catalog/Catalog";
 import Checkout from "./features/Checkout/Checkout";
 import Home from "./features/Home/Home";
 import "./scss/App.scss";
+import { setBasket } from "./store/basketSlice";
+import { useAppDispatch } from "./store/configureStore";
 import { getCookie } from "./util/util";
 
 function App() {
-  const { setBasket } = useStoreContext();
+  const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const buyerId = getCookie("buyerId");
     if (buyerId) {
       agent.Basket.getBasket()
-        .then((basket) => setBasket(basket))
+        .then((basket) => dispatch(setBasket(basket)))
         .catch((error) => console.log(error))
         .finally(() => setLoading(false));
     } else {

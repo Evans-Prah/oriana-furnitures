@@ -1,4 +1,5 @@
-﻿using models.Basket;
+﻿using models.Authentication;
+using models.Basket;
 using models.Product;
 
 namespace helpers.DbHelper
@@ -12,6 +13,8 @@ namespace helpers.DbHelper
         Task<BasketInfo> GetBasket(string? buyerId);
         Task<AddBasketDbResponse> AddItemToBasket(int productId, int quantity, string buyerId);
         Task<BasketDbResponse> RemoveItemFromBasket(int productId, int quantity, string buyerId);
-       
+        Task<string> CreateUserAccount(string accountUuid, string username, string password, string email, string phoneNumber);
+        Task<AccountLoginInfo> ValidateAccountLogin(string username, string password);
+        
     }
 }

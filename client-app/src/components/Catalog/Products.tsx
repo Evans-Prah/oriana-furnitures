@@ -3,7 +3,7 @@ import ProductCard from "./ProductCard";
 import './Products.scss';
 
 interface Props {
-  products: Product[];
+  products: Product[] | undefined;
 }
 
 const Products = (props: Props) => {
@@ -11,8 +11,8 @@ const Products = (props: Props) => {
     <>
       <div className="products">
         <div className="product">
-          {props.products.map((product) => (
-            <ProductCard key={product.productUuid} product={product} />
+          {props.products?.map((product, index) => (
+            <ProductCard key={index} product={product} />
           ))}
         </div>
       </div>

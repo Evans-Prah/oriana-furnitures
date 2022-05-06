@@ -47,6 +47,8 @@ const Catalog = {
       return [] as Product[];
     }
   },
+
+
   getProduct: (productUuid: string): Promise<Product> => {
     return new Promise((resolve) => {
       if (productUuid !== null || productUuid !== "") {
@@ -58,7 +60,7 @@ const Catalog = {
               resolve(data as Product);
               return true;
             }
-            toast.error(response.data.responseMessage);
+            toast.error(response.data.responseMessage)
           })
           .catch(function (error) {
             toast.error(error);

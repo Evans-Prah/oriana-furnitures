@@ -1,8 +1,7 @@
-import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import agent from "../../api/agent";
-import { useStoreContext } from "../../context/StoreContext";
 import { Product } from "../../models/Product";
+import { addBasketItemAsync } from "../../store/basketSlice";
+import { useAppDispatch, useAppSelector } from "../../store/configureStore";
 import "./ProductCard.scss";
 
 interface Props {
@@ -10,21 +9,9 @@ interface Props {
 }
 
 const ProductCard = ({ product }: Props) => {
-  const [loading, setLoading] = useState(false);
-  const { setBasket } = useStoreContext();
+  const {status}= useAppSelector(state => state.basket);
+  const dispatch = useAppDispatch();
 
-  const addItemHandler = (productId: number) => {
-    setLoading(true);
-    agent.Basket.addItem(productId)
-      .then((res) => {
-        setLoading(false);
-        setBasket(res);
-      })
-      .catch((error) => {
-        setLoading(false);
-        console.log(error);
-      });
-  };
 
   return (
     <>
@@ -37,7 +24,7 @@ const ProductCard = ({ product }: Props) => {
         <div className="product-card__details">
           <h3 className="product-card__details-name">{product.name}</h3>
           <h4 className="product-card__details-price">
-            GH₵ {product.price.toFixed(2)}
+            GH₵ {product?.price}
           </h4>
           <h4 className="product-card__details-brand">
             Brand: {product.brand}
@@ -49,7 +36,7 @@ const ProductCard = ({ product }: Props) => {
         <div className="product-card__btns">
           <button
             className="btn product-card__btns-add-btn"
-            onClick={() => addItemHandler(product.productId)}
+            onClick={() => dispatch(addBasketItemAsync({productId: product.productId}))}
           >
             Add to Cart
           </button>
