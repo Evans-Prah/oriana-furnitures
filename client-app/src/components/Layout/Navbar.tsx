@@ -1,14 +1,19 @@
 import { Link } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import { useStoreContext } from "../../context/StoreContext";
-import { useAppSelector } from "../../store/configureStore";
+import { signOut } from "../../store/accountSlice";
+import { useAppDispatch, useAppSelector } from "../../store/configureStore";
 import "./Navbar.scss";
 
 export default function Navbar() {
-  const {basket} = useAppSelector(state => state.basket); 
-  const itemCount= basket?.data?.items?.reduce((sum, item) => sum + item.quantity, 0);
+  const dispatch = useAppDispatch();
+  const { basket } = useAppSelector((state) => state.basket);
+  const { user } = useAppSelector((state) => state.account);
+  const itemCount = basket?.data?.items?.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
   console.log(itemCount);
-
 
   let activeStyle = {
     color: "#fff",
@@ -47,24 +52,32 @@ export default function Navbar() {
               Catalog
             </NavLink>
           </li>
-          <li className="sub-menu">
-            <a href="/#">User</a>
-            <ul className="dropdown">
+          {user?.username ? (
+            <li className="sub-menu">
+              <a href="/#">Welcome {user?.username}</a>
+              <ul className="dropdown">
+                <li>
+                  <a href="/#">Orders</a>
+                </li>
+                <li>
+                  <a onClick={() => dispatch(signOut())} href="/#/">
+                    Logout
+                  </a>
+                </li>
+              </ul>
+            </li>
+          ) : null}
+          {user?.username ? null : (
+            <>
               <li>
-                <a href="/#">Orders</a>
+                <Link to="/auth/login">LogIn</Link>
               </li>
               <li>
-                <a href="/#">Logout</a>
+                <Link to="/auth/register">Register</Link>
               </li>
-            </ul>
-          </li>
+            </>
+          )}
 
-          <li>
-            <a href="/#">LogIn</a>
-          </li>
-          <li>
-            <a href="/#">Register</a>
-          </li>
           <li>
             <Link to="/basket" className="shopping-cart">
               <svg className="shopping-cart-icon">

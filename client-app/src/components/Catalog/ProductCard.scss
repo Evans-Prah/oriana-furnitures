@@ -1,32 +1,6 @@
 @use "../../scss/abstracts/" as *;
 
-.btn {
-  border: none;
-  border-radius: 0;
-  font-family: $font-display;
-  font-size: 1rem;
-  text-transform: uppercase;
-  padding: 1.8rem 3rem;
-  cursor: pointer;
-  transition: all 0.2s;
 
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 1rem 2rem rgba(#000, 0.2);
-
-    &::after {
-      transform: scaleX(1.4) scaleY(1.6);
-      opacity: 0;
-    }
-  }
-
-  &:active,
-  &:focus {
-    outline: none;
-    transform: translateY(-1px);
-    box-shadow: 0 0.5rem 1rem rgba(#000, 0.2);
-  }
-}
 
 .product-card {
   background-color: $color-primary-light;

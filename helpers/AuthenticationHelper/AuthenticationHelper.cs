@@ -37,6 +37,8 @@ namespace helpers.AuthenticationHelper
             if (string.IsNullOrWhiteSpace(email)) return new HelpersResponse { Successful = false, ResponseMessage = "Email is required" };
             if (string.IsNullOrWhiteSpace(phoneNumber)) return new HelpersResponse { Successful = false, ResponseMessage = "Phone number is required" };
 
+            if (password.Length <= 5) return new HelpersResponse { Successful = false, ResponseMessage = "Password should be at least 6 characters long" };
+
             var accountUuid = Guid.NewGuid().ToString();
             password = StringCipher.Encrypt(password, _encryption_key);
 
@@ -75,6 +77,32 @@ namespace helpers.AuthenticationHelper
                     Email = dbResponse.Email,
                     PhoneNumber = dbResponse.PhoneNumber,
                     AccountUuid = dbResponse.AccountUuid,
+                    AccountRole = dbResponse.AccountRole,
+                    Token = tokenInfo,
+                    LastLogin = dbResponse.LastLogin,
+                }
+            };
+
+        }
+        
+        public async Task<HelpersResponse> GetUserDetails(string username)
+        {
+            
+            if (string.IsNullOrWhiteSpace(username)) return new HelpersResponse { Successful = false, ResponseMessage = "Username is required" };
+
+            var dbResponse = await _dbHelper.GetUserDetails(username);
+
+            var tokenInfo = CreateJWTInfo(username, dbResponse.AccountRole);
+
+            return new HelpersResponse
+            {
+                Successful = true,
+                ResponseMessage = "Login successful",
+                Data = new AccountLoginInfo
+                {
+                    Username = dbResponse.Username,
+                    Email = dbResponse.Email,
+                    PhoneNumber = dbResponse.PhoneNumber,
                     AccountRole = dbResponse.AccountRole,
                     Token = tokenInfo,
                     LastLogin = dbResponse.LastLogin,

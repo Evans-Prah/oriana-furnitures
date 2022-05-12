@@ -1,41 +1,42 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Route } from "react-router-dom";
 import { Routes } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import agent from "./api/agent";
 import ProductDetails from "./components/Catalog/ProductDetails";
 import LoadingComponent from "./components/Layout/LoadingComponent";
 import Navbar from "./components/Layout/Navbar";
 import NotFound from "./components/Layout/NotFound";
-import { useStoreContext } from "./context/StoreContext";
 import About from "./features/About/About";
+import Login from "./features/Account/Login";
+import Register from "./features/Account/Register";
 import Basket from "./features/Basket/Basket";
 import Catalog from "./features/Catalog/Catalog";
 import Checkout from "./features/Checkout/Checkout";
 import Home from "./features/Home/Home";
 import "./scss/App.scss";
-import { setBasket } from "./store/basketSlice";
+import { getCurrentUser } from "./store/accountSlice";
+import { getBasketAsync } from "./store/basketSlice";
 import { useAppDispatch } from "./store/configureStore";
-import { getCookie } from "./util/util";
 
 function App() {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const buyerId = getCookie("buyerId");
-    if (buyerId) {
-      agent.Basket.getBasket()
-        .then((basket) => dispatch(setBasket(basket)))
-        .catch((error) => console.log(error))
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
+  const initializeApp = useCallback(async () => {
+    try {
+      await dispatch(getCurrentUser());
+      await dispatch(getBasketAsync());
+    } catch (error: any) {
+      toast.error("A system error occured");
     }
-  }, [setBasket]);
+  }, [dispatch]);
 
-  if(loading) return <LoadingComponent message='Oriana Furniture' />
+  useEffect(() => {
+    initializeApp().then(() => setLoading(false));
+  }, [initializeApp]);
+
+  if (loading) return <LoadingComponent message="Oriana Furniture" />;
 
   return (
     <>
@@ -58,6 +59,8 @@ function App() {
         <Route path="/catalog/:productUuid" element={<ProductDetails />} />
         <Route path="/basket" element={<Basket />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/auth/register" element={<Register />} />
+        <Route path="/auth/login" element={<Login />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

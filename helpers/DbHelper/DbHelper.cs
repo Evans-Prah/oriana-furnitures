@@ -154,6 +154,22 @@ namespace helpers.DbHelper
             if (response.Count > 0) return response[0];
 
             return new AccountLoginInfo { ResponseMessage = "An error occurred" };
+        }
+
+        
+
+        public async Task<AccountLoginInfo> GetUserDetails(string username)
+        {
+            var parameters = new List<StoreProcedureParameter>
+            {
+                new StoreProcedureParameter { Name = "reqUsername", Type = NpgsqlDbType.Varchar, Value = username},
+            };
+
+            var response = await _storedProcedureExecutor.ExecuteStoredProcedure<AccountLoginInfo>(_connectionStrings.Default, "\"GetUserDetails\"", parameters);
+
+            if (response.Count > 0) return response[0];
+
+            return new AccountLoginInfo { ResponseMessage = "An error occurred" };
         } 
         
         #endregion

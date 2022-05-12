@@ -82,6 +82,7 @@ CREATE TABLE orf."UserAccount"
     "DateCreated" TIMESTAMP WITHOUT TIME ZONE DEFAULT (NOW() AT TIME ZONE 'UTC')
 );
 
+
 DROP TABLE IF EXISTS orf."UserRoles";
 CREATE TABLE orf."UserRoles"
 (
@@ -89,3 +90,7 @@ CREATE TABLE orf."UserRoles"
     "Role"        CHARACTER VARYING  NOT NULL,
     "DateCreated" TIMESTAMP WITHOUT TIME ZONE DEFAULT (NOW() AT TIME ZONE 'UTC')
 );
+
+
+
+

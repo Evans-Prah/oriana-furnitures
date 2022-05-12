@@ -8,7 +8,8 @@
 *::before {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+   box-sizing: border-box;
+  //box-sizing: inherit;
 }
 
 html {
@@ -17,8 +18,10 @@ html {
 }
 
 body {
+   box-sizing: border-box;
+   padding: 3rem;
   font-family: $font-primary;
-  color: $color-grey-dark-2;
+  color: $color-grey-dark-4;
   font-weight: 300;
   line-height: 1.6;
   background-image: linear-gradient(
@@ -30,4 +33,36 @@ body {
   background-repeat: no-repeat;
   min-height: 100vh;
   width: 100%;
+
+   @include respond(tab-port) {
+    padding: 0;
+  }
+}
+
+.btn {
+  border: none;
+  border-radius: 0;
+  font-family: $font-display;
+  font-size: 1rem;
+  text-transform: uppercase;
+  padding: 1.8rem 3rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 1rem 2rem rgba(#000, 0.2);
+
+    &::after {
+      transform: scaleX(1.4) scaleY(1.6);
+      opacity: 0;
+    }
+  }
+
+  &:active,
+  &:focus {
+    outline: none;
+    transform: translateY(-1px);
+    box-shadow: 0 0.5rem 1rem rgba(#000, 0.2);
+  }
 }

@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import agent from "../api/agent";
 import { ApiResponse } from "../models/ApiResponse";
 import { Basket } from "../models/Basket";
+import { getCookie } from "../util/util";
 
 interface BasketState {
   basket: Basket | null;
@@ -13,6 +14,22 @@ const initialState: BasketState = {
   basket: null,
   status: "idle",
 };
+
+export const getBasketAsync = createAsyncThunk<Basket>(
+  'basket/getBasketAsync',
+  async(_, thunkAPI) => {
+    try{
+      return await agent.Basket.getBasket();
+    } catch(error) {
+      return thunkAPI.rejectWithValue("A system error occured");
+    }
+  },
+  {
+    condition: () => {
+      if(!getCookie('buyerId')) return false;
+    }
+  }
+)
 
 export const addBasketItemAsync = createAsyncThunk<
   Basket,
@@ -57,6 +74,16 @@ export const basketSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    builder.addCase(getBasketAsync.pending, (state) => {
+      state.status = "pendingGetBasket";
+    });
+    builder.addCase(getBasketAsync.fulfilled, (state, action) => {
+      state.basket = action.payload;
+      state.status = "idle";
+    });
+    builder.addCase(getBasketAsync.rejected, (state) => {
+      state.status = "idle";
+    });
     builder.addCase(addBasketItemAsync.pending, (state, action) => {
       state.status = "pendingAddItem" + action.meta.arg.productId;
     });

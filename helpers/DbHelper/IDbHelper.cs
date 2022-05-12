@@ -15,6 +15,6 @@ namespace helpers.DbHelper
         Task<BasketDbResponse> RemoveItemFromBasket(int productId, int quantity, string buyerId);
         Task<string> CreateUserAccount(string accountUuid, string username, string password, string email, string phoneNumber);
         Task<AccountLoginInfo> ValidateAccountLogin(string username, string password);
-        
+        Task<AccountLoginInfo> GetUserDetails(string username);
     }
 }

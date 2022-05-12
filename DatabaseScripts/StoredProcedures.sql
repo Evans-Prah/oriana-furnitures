@@ -70,9 +70,6 @@ BEGIN
 END
 $$;
 
-SELECT *
-FROM orf."GetProducts"(5, 5);
-
 
 DROP FUNCTION IF EXISTS orf."GetProduct"(CHARACTER VARYING);
 CREATE FUNCTION orf."GetProduct"("reqProductUuid" CHARACTER VARYING)
@@ -493,3 +490,28 @@ BEGIN
                         userRecord."LastLogin";
 END
 $$;
+
+
+DROP FUNCTION IF EXISTS orf."GetUserDetails"(CHARACTER VARYING);
+CREATE FUNCTION orf."GetUserDetails"("reqUsername" CHARACTER VARYING)
+    RETURNS TABLE
+            (
+                "Username"    CHARACTER VARYING,
+                "Email"       CHARACTER VARYING,
+                "PhoneNumber" CHARACTER VARYING,
+                "AccountRole" CHARACTER VARYING,
+                "LastLogin"   TIMESTAMP WITHOUT TIME ZONE
+            )
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    RETURN QUERY SELECT uc."Username", uc."Email", uc."PhoneNumber", ur."Role", uc."LastLogin"
+                 FROM orf."UserAccount" uc
+                          LEFT JOIN orf."UserRoles" ur ON uc."UserRoleId" = ur."RoleId"
+                 WHERE uc."Username" = "reqUsername"
+                 LIMIT 1;
+
+END
+$$;
+
